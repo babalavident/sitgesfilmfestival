@@ -13,6 +13,8 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
         <script src="https://rawgit.com/wenzhixin/bootstrap-table/master/src/extensions/multiple-sort/bootstrap-table-multiple-sort.js"></script>
+        
+        <script src="movie_info_extractor.js"></script>
     </head>
     <body>
         <div class="container">
@@ -20,13 +22,14 @@
                 <h1>Sitges 2018 Movies</h1>
                 <p>Let's see...</p>
             </div>
-            <table data-toggle="table"
-               data-url="http://localhost:9900/api/movie_list/20181006"
-               data-sort-name="date"
-               data-sort-order="asc"
-               data-show-multi-sort="true"
-               data-sort-priority='[{"sortName": "date","sortOrder":"asc"}, {"sortName": "place","sortOrder":"asc"}]'
-               >
+            <table id="movie_table"
+                data-toggle="table"
+                data-url="http://localhost:9900/api/movie_list/20181006"
+                data-sort-name="date"
+                data-sort-order="asc"
+                data-show-multi-sort="true"
+                data-sort-priority='[{"sortName": "date","sortOrder":"asc"}, {"sortName": "place","sortOrder":"asc"}]'
+                >
                 <thead>
                 <tr>
                     <th data-field="date" 

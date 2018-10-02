@@ -1,0 +1,60 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+        <style>
+            .fixed-table-body {
+                height: initial;
+            }   
+        </style>
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+        <script src="https://rawgit.com/wenzhixin/bootstrap-table/master/src/extensions/multiple-sort/bootstrap-table-multiple-sort.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="jumbotron">
+                <h1>Sitges 2018 Movies</h1>
+                <p>Let's see...</p>
+            </div>
+            <table data-toggle="table"
+               data-url="http://localhost:9900/api/movie_list/20181006"
+               data-sort-name="date"
+               data-sort-order="asc"
+               data-show-multi-sort="true"
+               data-sort-priority='[{"sortName": "date","sortOrder":"asc"}, {"sortName": "place","sortOrder":"asc"}]'
+               >
+                <thead>
+                <tr>
+                    <th data-field="date" 
+                        data-sortable="true">
+                            Date
+                    </th>
+                    <th data-field="place" 
+                        data-sortable="true">
+                            Place
+                    </th>
+                    <th data-field="title" 
+                        data-sortable="true">
+                            Title
+                    </th>
+                    <th data-field="libres" 
+                        data-sortable="true">
+                            Libres
+                    </th>
+                    <th data-field="libres_real" 
+                        data-sortable="true">
+                            Libres (Real)
+                    </th>
+                    <th data-field="info_url">
+                            Info
+                    </th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </body>
+</html>

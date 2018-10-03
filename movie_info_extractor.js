@@ -1,5 +1,9 @@
 
 
+function processMovieData() {
+    return [];
+}
+
 function extractData() {
     var proxy = "https://cors-anywhere.herokuapp.com/";
     var url = "http://sitgesfilmfestival.com/cat/programa";
@@ -13,7 +17,7 @@ function extractData() {
                 console.log(data);
 
                 $('#movie_table').bootstrapTable({
-                    data: extractData()
+                    data: processMovieData(data)
                 });
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -24,7 +28,3 @@ function extractData() {
             }
         });
 }
-
-$(function () {
-
-});

@@ -1,6 +1,6 @@
 
 
-function processMovieData() {
+function processMovieData(data) {
     return [];
 }
 
@@ -28,3 +28,7 @@ function extractData() {
             }
         });
 }
+
+$(function () {
+    extractData();
+});

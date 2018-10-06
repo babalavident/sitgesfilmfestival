@@ -72,13 +72,21 @@ function retrieveCapacity(sessionInfo) {
             })
             .then(function (data, textStatus, jqXHR) {
                 
-                var json = JSON.parse(data.substring(8));
-                var capacity = json[0]["Sesion"]["Sesion"][0];
+                try {
+                    var json = JSON.parse(data.substring(8));
+                    var capacity = json[0]["Sesion"]["Sesion"][0];
                 
-                sessionInfo['agotado'] = capacity["Agotado"];
-                sessionInfo['aforo'] = parseInt(capacity["AforoTotal"]);
-                sessionInfo['ocupado'] = parseInt(capacity["AforoOcupado"]);
-                sessionInfo['libres_real'] = sessionInfo['aforo'] - sessionInfo['ocupado'];
+                    sessionInfo['agotado'] = capacity["Agotado"];
+                    sessionInfo['aforo'] = parseInt(capacity["AforoTotal"]);
+                    sessionInfo['ocupado'] = parseInt(capacity["AforoOcupado"]);
+                    sessionInfo['libres_real'] = sessionInfo['aforo'] - sessionInfo['ocupado'];
+                } catch(e) {
+                    console.log('Something happened while retrieving capacity!\n' + e)
+                    sessionInfo['agotado'] = null;
+                    sessionInfo['aforo'] = null;
+                    sessionInfo['ocupado'] = null;
+                    sessionInfo['libres_real'] = null;
+                }
             },
             function (data, textStatus, jqXHR) {
                 console.log("Error!: " + textStatus);
@@ -119,16 +127,21 @@ function retrieveSeats(sessionInfo) {
                 dataType: 'text'
             })
             .then(function (data, textStatus, jqXHR) {
-                
-                var regex = /\['Disponible'\] *= \"(\d+)\"/g;
-                var match = regex.exec(data);
-                
-                var seats = 0;
-                while (match != null) {
-                    seats += parseInt(match[1]);
-                    match = regex.exec(data);
+
+                try {
+                    var regex = /\['Disponible'\] *= \"(\d+)\"/g;
+                    var match = regex.exec(data);
+
+                    var seats = 0;
+                    while (match != null) {
+                        seats += parseInt(match[1]);
+                        match = regex.exec(data);
+                    }
+                    sessionInfo['libres'] = seats;
+                } catch(e) {
+                    console.log('Something happened while retrieving seats!\n' + e)
+                    sessionInfo['libres'] = null;
                 }
-                sessionInfo['libres'] = seats;
             },
             function (data, textStatus, jqXHR) {
                 console.log("Error!: " + textStatus);

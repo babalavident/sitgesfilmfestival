@@ -330,7 +330,7 @@ def html_to_file():
         page_html = generate_page()
         output.write(page_html)   
 
-app = Flask(__name__, static_url_path='')
+app = Flask(__name__)
 cache = SimpleCache()
 
 @app.route('/api/movie_list/<int:day_coded>')
@@ -407,6 +407,19 @@ def get_page():
     app.logger.info("Done!")
     return cached_page
 
+
+@app.route('/worker.js')
+def worker():
+    return render_template('worker.js')
+
+
+@app.route('/movie_info_extractor.js')
+def js():
+    return render_template('movie_info_extractor.js')
+
+@app.route('/test_index')
+def test_index():
+    return render_template('index.html')
 
 @app.route('/')
 def root():

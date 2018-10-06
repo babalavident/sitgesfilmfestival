@@ -52,7 +52,7 @@ function retrieveCapacity(sessionInfo) {
     var url = "https://www.4tickets.es/repositorios/repo43r4/public/cgi/Gateway.php";
 
     var date = new Date();
-    var now = date.toJSON().replace(/-|T|:/g, "").substring(0, 14);
+    var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
                         
     var capacity_request_data = {'IdTerminalWeb': '9455',
                                 'Idioma': {'0': '02', '1': '02'},
@@ -100,7 +100,7 @@ function retrieveSeats(sessionInfo) {
     var url = "https://www.4tickets.es/repositorios/repo43r4/public/cgi/Gateway.php";
 
     var date = new Date();
-    var now = date.toJSON().replace(/-|T|:/g, "").substring(0, 14);
+    var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
     
     var seat_request_data = {'IdTerminalWeb': '9455',
                             'Idioma': {'0': '02', '1': '02'},

@@ -1,4 +1,7 @@
 
+function InfoFormatter(value) {
+    return "<a href='" + value + "' target='_blank'>Movie info</a>"
+}
 
 function parseRow(row) {
 
@@ -52,12 +55,12 @@ function retrieveCapacity(sessionInfo) {
     var url = "https://www.4tickets.es/repositorios/repo43r4/public/cgi/Gateway.php";
 
     var date = new Date();
-    var now = date.toJSON().replace(/-|T|:/g, "").substring(0, 14);
+    var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
                         
     var capacity_request_data = {'IdTerminalWeb': '9455',
                                 'Idioma': {'0': '02', '1': '02'},
                                 'Nivel': 'Detalle_1_Sesion',
-                                'UserSession': 'd:1538387869.519136905670166015625;',
+                                'UserSession': 'd:1538843123.73538494110107421875;',
                                 'idIdioma': 'CA',
                                 'idSesion': sessionInfo['sessionId'],
                                 'instala': '_4TICK',
@@ -72,13 +75,22 @@ function retrieveCapacity(sessionInfo) {
             })
             .then(function (data, textStatus, jqXHR) {
                 
-                var json = JSON.parse(data.substring(8));
-                var capacity = json[0]["Sesion"]["Sesion"][0];
+                try {
+                    var json = JSON.parse(data.substring(8));
+                    var capacity = json[0]["Sesion"]["Sesion"][0];
                 
-                sessionInfo['agotado'] = capacity["Agotado"];
-                sessionInfo['aforo'] = parseInt(capacity["AforoTotal"]);
-                sessionInfo['ocupado'] = parseInt(capacity["AforoOcupado"]);
-                sessionInfo['libres_real'] = sessionInfo['aforo'] - sessionInfo['ocupado'];
+                    sessionInfo['agotado'] = capacity["Agotado"];
+                    sessionInfo['aforo'] = parseInt(capacity["AforoTotal"]);
+                    sessionInfo['ocupado'] = parseInt(capacity["AforoOcupado"]);
+                    sessionInfo['libres_real'] = sessionInfo['aforo'] - sessionInfo['ocupado'];
+                    
+                } catch(e) {
+                    console.log('Something happened while retrieving capacity!\n' + e)
+                    sessionInfo['agotado'] = null;
+                    sessionInfo['aforo'] = null;
+                    sessionInfo['ocupado'] = null;
+                    sessionInfo['libres_real'] = null;
+                }
             },
             function (data, textStatus, jqXHR) {
                 console.log("Error!: " + textStatus);
@@ -92,12 +104,12 @@ function retrieveSeats(sessionInfo) {
     var url = "https://www.4tickets.es/repositorios/repo43r4/public/cgi/Gateway.php";
 
     var date = new Date();
-    var now = date.toJSON().replace(/-|T|:/g, "").substring(0, 14);
+    var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
     
     var seat_request_data = {'IdTerminalWeb': '9455',
                             'Idioma': {'0': '02', '1': '02'},
                             'Nivel': 'DetalleAforo',
-                            'UserSession': 'd:1507223924.05863189697265625',
+                            'UserSession': 'd:1538843123.73538494110107421875;',
                             'idIdioma': 'CA',
                             'idSesion': sessionInfo['sessionId'],
                             'instala': '_4TICK',
@@ -119,16 +131,21 @@ function retrieveSeats(sessionInfo) {
                 dataType: 'text'
             })
             .then(function (data, textStatus, jqXHR) {
-                
-                var regex = /\['Disponible'\] *= \"(\d+)\"/g;
-                var match = regex.exec(data);
-                
-                var seats = 0;
-                while (match != null) {
-                    seats += parseInt(match[1]);
-                    match = regex.exec(data);
+
+                try {
+                    var regex = /\['Disponible'\] *= \"(\d+)\"/g;
+                    var match = regex.exec(data);
+
+                    var seats = 0;
+                    while (match != null) {
+                        seats += parseInt(match[1]);
+                        match = regex.exec(data);
+                    }
+                    sessionInfo['libres'] = seats;
+                } catch(e) {
+                    console.log('Something happened while retrieving seats!\n' + e)
+                    sessionInfo['libres'] = null;
                 }
-                sessionInfo['libres'] = seats;
             },
             function (data, textStatus, jqXHR) {
                 console.log("Error!: " + textStatus);
@@ -166,7 +183,7 @@ function processMovieData(data, day_coded, callback_capacity) {
     return movie_list;
 }
 
-function extractData() {
+function extractData(day) {
     var proxy = "https://cors-anywhere.herokuapp.com/";
     var url = "http://sitgesfilmfestival.com/cat/programa";
     
@@ -178,7 +195,7 @@ function extractData() {
                 //alert("Ok!");
                 //console.log(data);
 
-                var movie_list = processMovieData(data, 20181006);
+                var movie_list = processMovieData(data, day);
                 
             },
             function (jqXHR, textStatus, errorThrown) {
@@ -190,5 +207,5 @@ function extractData() {
 $(function () {
     $('#movie_table').bootstrapTable('showLoading');
 
-    extractData();
+    extractData(20181013);
 });

@@ -1,4 +1,7 @@
 
+function InfoFormatter(value) {
+    return "<a href='" + value + "' target='_blank'>Info</a>"
+}
 
 function parseRow(row) {
 

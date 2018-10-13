@@ -1,6 +1,6 @@
 
 function InfoFormatter(value) {
-    return "<a href='" + value + "' target='_blank'>Info</a>"
+    return "<a href='" + value + "' target='_blank'>Movie info</a>"
 }
 
 function parseRow(row) {
@@ -35,7 +35,7 @@ function parseRow(row) {
             }
         }
         
-        session['title'] = title;
+        session['title'] = title.replace(/\n/, "<br/>");
         session['info_url'] = info_url;
         session['date'] = date;
         session['day'] = day;
@@ -83,6 +83,7 @@ function retrieveCapacity(sessionInfo) {
                     sessionInfo['aforo'] = parseInt(capacity["AforoTotal"]);
                     sessionInfo['ocupado'] = parseInt(capacity["AforoOcupado"]);
                     sessionInfo['libres_real'] = sessionInfo['aforo'] - sessionInfo['ocupado'];
+                    
                 } catch(e) {
                     console.log('Something happened while retrieving capacity!\n' + e)
                     sessionInfo['agotado'] = null;
@@ -132,7 +133,7 @@ function retrieveSeats(sessionInfo) {
             .then(function (data, textStatus, jqXHR) {
 
                 try {
-                    var regex = /\['Disponible'\] *= \"(\d+)\"/g;
+                    var regex = /"Disponible" *: *"(\d+)"/g;
                     var match = regex.exec(data);
 
                     var seats = 0;
@@ -140,7 +141,7 @@ function retrieveSeats(sessionInfo) {
                         seats += parseInt(match[1]);
                         match = regex.exec(data);
                     }
-                    sessionInfo['libres'] = seats;
+                    sessionInfo['libres'] = seats/2;
                 } catch(e) {
                     console.log('Something happened while retrieving seats!\n' + e)
                     sessionInfo['libres'] = null;
@@ -175,36 +176,57 @@ function processMovieData(data, day_coded, callback_capacity) {
     }
     
     Promise.all(promises).then(function() {
+            date_info[day_coded] = movie_list;
             $('#movie_table').bootstrapTable('hideLoading');
             $('#movie_table').bootstrapTable('load', movie_list);
+	    $('#dates').removeAttr('disabled');
         })
     
     return movie_list;
 }
 
-function extractData() {
-    var proxy = "https://cors-anywhere.herokuapp.com/";
-    var url = "http://sitgesfilmfestival.com/cat/programa";
+date_info = {};
+
+function extractData(day) {
+
+    if (day in date_info) {
+        $('#movie_table').bootstrapTable('hideLoading');
+        $('#movie_table').bootstrapTable('load', date_info[day]);
+
+    } else {
+	$('#dates').attr('disabled', 'disabled');
+        $('#movie_table').bootstrapTable('showLoading');
+
+        var proxy = "https://cors-anywhere.herokuapp.com/";
+        var url = "http://sitgesfilmfestival.com/cat/programa";
     
-    $.ajax({
+        $.ajax({
             type: 'GET',
             url: proxy + url
             
         }).then(function (data, textStatus, jqXHR) {
-                //alert("Ok!");
-                //console.log(data);
+            //alert("Ok!");
+            //console.log(data);
 
-                var movie_list = processMovieData(data, 20181006);
+            var movie_list = processMovieData(data, day);
                 
             },
             function (jqXHR, textStatus, errorThrown) {
                 alert("Wait, take a look: " + textStatus + ", " + errorThrown);
             }
         );
+    }
 }
 
 $(function () {
     $('#movie_table').bootstrapTable('showLoading');
 
-    extractData();
+    $('#dates')[0].onchange = function() {
+    	extractData(this.value);
+    };
+
+    var date = new Date();
+    var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 8));
+    $('#dates')[0].value = now;
+    extractData(now);
 });

@@ -69,9 +69,9 @@ function retrieveCapacity(sessionInfo) {
                         
     var promise = $.ajax({
                 type: 'POST',
-                url: proxy + url,
+                url: url,
                 data: capacity_request_data,
-                dataType: 'text'
+                dataType: 'text/plain'
             })
             .then(function (data, textStatus, jqXHR) {
                 
@@ -126,9 +126,9 @@ function retrieveSeats(sessionInfo) {
                         
     var promise = $.ajax({
                 type: 'POST',
-                url: proxy + url,
+                url: url,
                 data: seat_request_data,
-                dataType: 'text'
+                dataType: 'text/plain'
             })
             .then(function (data, textStatus, jqXHR) {
 
@@ -203,7 +203,7 @@ function extractData(day) {
     
         $.ajax({
             type: 'GET',
-            url: proxy + url
+            url: url
             
         }).then(function (data, textStatus, jqXHR) {
             //alert("Ok!");

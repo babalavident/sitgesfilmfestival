@@ -52,7 +52,7 @@ function parseRow(row) {
 
 function retrieveCapacity(sessionInfo) {
     var proxy = "https://cors-anywhere.herokuapp.com/";
-    var url = "https://www.4tickets.es/repositorios/repo43r4/public/cgi/Gateway.php";
+    var url = "https://www.4tickets.es/repositorios/repo43r9a/public/cgi/GatewayV3.php";
 
     var date = new Date();
     var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
@@ -60,7 +60,7 @@ function retrieveCapacity(sessionInfo) {
     var capacity_request_data = {'IdTerminalWeb': '9455',
                                 'Idioma': {'0': '02', '1': '02'},
                                 'Nivel': 'Detalle_1_Sesion',
-                                'UserSession': 'd:1538843123.73538494110107421875;',
+                                'UserSession': '1570114303.6318',
                                 'idIdioma': 'CA',
                                 'idSesion': sessionInfo['sessionId'],
                                 'instala': '_4TICK',
@@ -101,7 +101,7 @@ function retrieveCapacity(sessionInfo) {
 
 function retrieveSeats(sessionInfo) {
     var proxy = "https://cors-anywhere.herokuapp.com/";
-    var url = "https://www.4tickets.es/repositorios/repo43r4/public/cgi/Gateway.php";
+    var url = "https://www.4tickets.es/repositorios/repo43r9a/public/cgi/GatewayV3.php";
 
     var date = new Date();
     var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
@@ -109,7 +109,7 @@ function retrieveSeats(sessionInfo) {
     var seat_request_data = {'IdTerminalWeb': '9455',
                             'Idioma': {'0': '02', '1': '02'},
                             'Nivel': 'DetalleAforo',
-                            'UserSession': 'd:1538843123.73538494110107421875;',
+                            'UserSession': '1570114303.6318',
                             'idIdioma': 'CA',
                             'idSesion': sessionInfo['sessionId'],
                             'instala': '_4TICK',
@@ -142,6 +142,7 @@ function retrieveSeats(sessionInfo) {
                         match = regex.exec(data);
                     }
                     sessionInfo['libres'] = seats/2;
+
                 } catch(e) {
                     console.log('Something happened while retrieving seats!\n' + e)
                     sessionInfo['libres'] = null;
@@ -179,7 +180,7 @@ function processMovieData(data, day_coded, callback_capacity) {
             date_info[day_coded] = movie_list;
             $('#movie_table').bootstrapTable('hideLoading');
             $('#movie_table').bootstrapTable('load', movie_list);
-	    $('#dates').removeAttr('disabled');
+            $('#dates').removeAttr('disabled');
         })
     
     return movie_list;
@@ -194,7 +195,7 @@ function extractData(day) {
         $('#movie_table').bootstrapTable('load', date_info[day]);
 
     } else {
-	$('#dates').attr('disabled', 'disabled');
+        $('#dates').attr('disabled', 'disabled');
         $('#movie_table').bootstrapTable('showLoading');
 
         var proxy = "https://cors-anywhere.herokuapp.com/";

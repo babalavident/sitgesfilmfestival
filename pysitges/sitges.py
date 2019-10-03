@@ -1,7 +1,7 @@
 import codecs
 import re
 import logging
-from time import gmtime, strftime
+from time import localtime, strftime
 
 import requests
 import json
@@ -132,19 +132,19 @@ def get_sessions_2018():
 
 
 
-
-
 def get_session_other_info(sessionId):
     # 2017
     url = "https://www.4tickets.es/repositorios/repo43/public/cgi/Gateway.php"
     # 2018
     url = "https://www.4tickets.es/repositorios/repo43r4/public/cgi/Gateway.php"
+    # 2019
+    url = "https://www.4tickets.es/repositorios/repo43r9a/public/cgi/GatewayV3.php"
     
-    now = strftime("%Y%m%d%H%M%S", gmtime())
+    now = strftime("%Y%m%d%H%M%S", localtime())
     session_data = {'IdTerminalWeb': '9455',
                     'Idioma': {'0': '02', '1': '02'},
                     'Nivel': 'DetalleAforo',
-                    'UserSession': 'd:1507223924.05863189697265625',
+                    'UserSession': '1570114303.6318',
                     'idIdioma': 'CA',
                     'idSesion': sessionId,
                     'instala': '_4TICK',
@@ -177,21 +177,32 @@ def get_session_other_info(sessionId):
 
 
 def get_session_info(sessionId):
+    # 2017
     url = "https://www.4tickets.es/repositorios/repo43/public/cgi/Gateway.php"
     # 2018
     url = "https://www.4tickets.es/repositorios/repo43r4/public/cgi/Gateway.php"
+    # 2019
+    url = "https://www.4tickets.es/repositorios/repo43r9a/public/cgi/GatewayV3.php"
     
+    timeStamp = strftime("%Y%m%d%H%M%S", localtime())
     
-    now = strftime("%Y%m%d%H%M%S", gmtime())
-    session_data = {'IdTerminalWeb': '9455',
-                    'Idioma': {'0': '02', '1': '02'},
-                    'Nivel': 'Detalle_1_Sesion',
-                    'UserSession': 'd:1538387869.519136905670166015625;', #'d:1537379369.8864629268646240234375;',
-                    'idIdioma': 'CA',
+    #sessionId = '0000000000157570'
+    #timeStamp = '20191003165143'
+    userSession = '1570114303.6318'
+
+    session_data = {
                     'idSesion': sessionId,
-                    'instala': '_4TICK',
+                    'Idioma': {
+                        '0': '02', 
+                        '1': '02'},
+                    'idIdioma': 'CA',
+                    'Nivel': 'Detalle_1_Sesion',
+                    'IdTerminalWeb': '9455',
                     'seccion': '1',
-                    'timeStamp': now}
+                    'instala': '_4TICK',
+                    'timeStamp': timeStamp, #now,
+                    'UserSession': userSession # 'd:1538387869.519136905670166015625;', #'d:1537379369.8864629268646240234375;',
+                }
      
     response = requests.post(url, data=session_data)
     json_dict = json.loads(response.text[8:])[0]
@@ -199,12 +210,14 @@ def get_session_info(sessionId):
     try:
         return json_dict["Sesion"]["Sesion"][0]
     except Exception as e:
-        #print "Error! Size of session section: ", len(json_dict["Sesion"]["Sesion"])
-        raise e
+        # print session_data
+        # print json_dict
+        print "Error! Size of session section: ", len(json_dict["Sesion"]["Sesion"])
+        raise
 
 def check_day(session_day, start_day, day_count=1):
     if not start_day:
-        start_day = int(strftime("%Y%m%d", gmtime()))
+        start_day = int(strftime("%Y%m%d", localtime()))
         
     return session_day >= start_day and session_day < start_day+day_count
 
@@ -348,6 +361,7 @@ def get_json(day_coded):
             if session["sessionId"]:
                 try:
                     session_info = get_session_info(session["sessionId"])
+
                     session["agotado"] = session_info["Agotado"]
                     session["aforo"] = int(session_info["AforoTotal"])
                     session["ocupado"] = int(session_info["AforoOcupado"])

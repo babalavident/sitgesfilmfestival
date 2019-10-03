@@ -199,7 +199,7 @@ function extractData(day) {
         $('#movie_table').bootstrapTable('showLoading');
 
         var proxy = "https://cors-anywhere.herokuapp.com/";
-        var url = "http://sitgesfilmfestival.com/cat/programa";
+        var url = "https://sitgesfilmfestival.com/cat/programa";
     
         $.ajax({
             type: 'GET',

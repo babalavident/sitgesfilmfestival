@@ -4,7 +4,7 @@ function LinkFormatter(value, row, index) {
 }
 
 function retrieveCapacity(sessionInfo) {
-    var proxy = "http://goxcors.appspot.com/cors?method=POST&url=";
+    var proxy = "https://goxcors.appspot.com/cors?method=POST&url=";
     var url = "https://www.4tickets.es/repositorios/repo43r9a/public/cgi/GatewayV3.php";
 
     var date = new Date();
@@ -52,7 +52,7 @@ function retrieveCapacity(sessionInfo) {
 }
 
 function retrieveSeats(sessionInfo) {
-    var proxy = "http://goxcors.appspot.com/cors?method=POST&url=";
+    var proxy = "https://goxcors.appspot.com/cors?method=POST&url=";
     var url = "https://www.4tickets.es/repositorios/repo43r9a/public/cgi/GatewayV3.php";
 
     var date = new Date();
@@ -223,7 +223,7 @@ function processSessionData(data) {
 
 function retrieveSessions(afterRetrievalCallback) {
     
-    var proxy = "http://goxcors.appspot.com/cors?method=GET&url=";
+    var proxy = "https://goxcors.appspot.com/cors?method=GET&url=";
     var url = "https://sitgesfilmfestival.com/cat/programa";
 
     $.ajax({

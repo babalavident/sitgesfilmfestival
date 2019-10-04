@@ -1,6 +1,155 @@
 
-function InfoFormatter(value) {
-    return "<a href='" + value + "' target='_blank'>Movie info</a>"
+function LinkFormatter(value, row, index) {
+      return "<a href='"+row.info_url+"' target='_blank'>"+value.replace(/(\r\n|\n|\r)/gm, "<br>")+"</a>";
+}
+
+function retrieveCapacity(sessionInfo) {
+    var proxy = "http://goxcors.appspot.com/cors?method=POST&url=";
+    var url = "https://www.4tickets.es/repositorios/repo43r9a/public/cgi/GatewayV3.php";
+
+    var date = new Date();
+    var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
+                        
+    var capacity_request_data = {'IdTerminalWeb': '9455',
+                                'Idioma': {'0': '02', '1': '02'},
+                                'Nivel': 'Detalle_1_Sesion',
+                                'UserSession': '1570114303.6318',
+                                'idIdioma': 'CA',
+                                'idSesion': sessionInfo['sessionId'],
+                                'instala': '_4TICK',
+                                'seccion': '1',
+                                'timeStamp': now};
+                        
+    var promise = $.ajax({
+                type: 'POST',
+                url: proxy + url,
+                data: capacity_request_data
+            })
+            .then(function (data, textStatus, jqXHR) {
+                
+                try {
+                    var json = JSON.parse(data.substring(8));
+                    var capacity = json[0]["Sesion"]["Sesion"][0];
+                
+                    sessionInfo['agotado'] = capacity["Agotado"];
+                    sessionInfo['aforo'] = parseInt(capacity["AforoTotal"]);
+                    sessionInfo['ocupado'] = parseInt(capacity["AforoOcupado"]);
+                    sessionInfo['libres_real'] = sessionInfo['aforo'] - sessionInfo['ocupado'];
+                    
+                } catch(e) {
+                    console.log('Something happened while retrieving capacity!\n' + e)
+                    sessionInfo['agotado'] = null;
+                    sessionInfo['aforo'] = null;
+                    sessionInfo['ocupado'] = null;
+                    sessionInfo['libres_real'] = null;
+                }
+            },
+            function (data, textStatus, jqXHR) {
+                console.log("Error on getting capacity page: " + textStatus);
+            });
+            
+    return promise;
+}
+
+function retrieveSeats(sessionInfo) {
+    var proxy = "http://goxcors.appspot.com/cors?method=POST&url=";
+    var url = "https://www.4tickets.es/repositorios/repo43r9a/public/cgi/GatewayV3.php";
+
+    var date = new Date();
+    var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
+    
+    var seat_request_data = {'IdTerminalWeb': '9455',
+                            'Idioma': {'0': '02', '1': '02'},
+                            'Nivel': 'DetalleAforo',
+                            'UserSession': '1570114303.6318',
+                            'idIdioma': 'CA',
+                            'idSesion': sessionInfo['sessionId'],
+                            'instala': '_4TICK',
+                            'seccion': '4',
+                            'idRecinto': 'FS4',
+                            'idEvento': 'SFF17_303',
+                            'IDsRecinto': '0;FS4',
+                            'IDSEvento': '0;SFF17_303',
+                            'conexiones': '0',
+                            'idTipoE': '251',
+                            'Etiquetas': '0000000000111489',
+                            'NivelPrecios': '0',
+                            'timeStamp': now};
+                        
+    var promise = $.ajax({
+                type: 'POST',
+                url: proxy + url,
+                data: seat_request_data
+            })
+            .then(function (data, textStatus, jqXHR) {
+
+                try {
+                    var regex = /"Disponible" *: *"(\d+)"/g;
+                    var match = regex.exec(data);
+
+                    var seats = 0;
+                    while (match != null) {
+                        seats += parseInt(match[1]);
+                        match = regex.exec(data);
+                    }
+                    sessionInfo['libres'] = seats/2;
+
+                } catch(e) {
+                    console.log('Something happened while retrieving seats!\n' + e)
+                    sessionInfo['libres'] = null;
+                }
+            },
+            function (data, textStatus, jqXHR) {
+                console.log("Error on getting seats page: " + textStatus);
+            });
+            
+    return promise;
+}
+
+function retrieveSessionsData(sessions) {
+    
+    var promises = [];
+    var movie_list = [];
+    for (i = 0; i < sessions.length; i++) {
+        
+        var sessionInfo = sessions[i];
+        if (sessionInfo) {
+            if (sessionInfo['sessionId']) {
+                promises.push(retrieveCapacity(sessionInfo));
+                promises.push(retrieveSeats(sessionInfo));
+            }
+            movie_list.push(sessionInfo);
+        }
+    }
+    
+    Promise.all(promises).then(function() {
+            sitges.date_info[day_coded] = movie_list;
+            $('#movie_table').bootstrapTable('hideLoading');
+            $('#movie_table').bootstrapTable('load', movie_list);
+            $('#dates').removeAttr('disabled');
+    });
+    
+    return movie_list;
+}
+
+
+function loadDaySessions(day) {
+
+    if (day in sitges.date_info) {
+        $('#movie_table').bootstrapTable('hideLoading');
+        $('#movie_table').bootstrapTable('load', sitges.date_info[day]);
+
+    } else if (day in sitges.sessions) {
+        $('#dates').attr('disabled', 'disabled');
+        $('#movie_table').bootstrapTable('showLoading');
+        
+        retrieveSessionsData(sitges.sessions[day]);
+        
+    } else {
+        var msg = "Are you sure this date (" + day + ") is correct?";
+        alert(msg);
+        // console.log(msg)
+    }
 }
 
 function parseRow(row) {
@@ -35,7 +184,7 @@ function parseRow(row) {
             }
         }
         
-        session['title'] = title.replace(/\n/, "<br/>");
+        session['title'] = title;
         session['info_url'] = info_url;
         session['date'] = date;
         session['day'] = day;
@@ -50,184 +199,69 @@ function parseRow(row) {
     return session;
 }
 
-function retrieveCapacity(sessionInfo) {
-    var proxy = "https://cors-anywhere.herokuapp.com/";
-    var url = "https://www.4tickets.es/repositorios/repo43r9a/public/cgi/GatewayV3.php";
-
-    var date = new Date();
-    var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
-                        
-    var capacity_request_data = {'IdTerminalWeb': '9455',
-                                'Idioma': {'0': '02', '1': '02'},
-                                'Nivel': 'Detalle_1_Sesion',
-                                'UserSession': '1570114303.6318',
-                                'idIdioma': 'CA',
-                                'idSesion': sessionInfo['sessionId'],
-                                'instala': '_4TICK',
-                                'seccion': '1',
-                                'timeStamp': now};
-                        
-    var promise = $.ajax({
-                type: 'POST',
-                url: url,
-                data: capacity_request_data,
-                dataType: 'text/plain'
-            })
-            .then(function (data, textStatus, jqXHR) {
-                
-                try {
-                    var json = JSON.parse(data.substring(8));
-                    var capacity = json[0]["Sesion"]["Sesion"][0];
-                
-                    sessionInfo['agotado'] = capacity["Agotado"];
-                    sessionInfo['aforo'] = parseInt(capacity["AforoTotal"]);
-                    sessionInfo['ocupado'] = parseInt(capacity["AforoOcupado"]);
-                    sessionInfo['libres_real'] = sessionInfo['aforo'] - sessionInfo['ocupado'];
-                    
-                } catch(e) {
-                    console.log('Something happened while retrieving capacity!\n' + e)
-                    sessionInfo['agotado'] = null;
-                    sessionInfo['aforo'] = null;
-                    sessionInfo['ocupado'] = null;
-                    sessionInfo['libres_real'] = null;
-                }
-            },
-            function (data, textStatus, jqXHR) {
-                console.log("Error!: " + textStatus);
-            });
-            
-    return promise;
-}
-
-function retrieveSeats(sessionInfo) {
-    var proxy = "https://cors-anywhere.herokuapp.com/";
-    var url = "https://www.4tickets.es/repositorios/repo43r9a/public/cgi/GatewayV3.php";
-
-    var date = new Date();
-    var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
-    
-    var seat_request_data = {'IdTerminalWeb': '9455',
-                            'Idioma': {'0': '02', '1': '02'},
-                            'Nivel': 'DetalleAforo',
-                            'UserSession': '1570114303.6318',
-                            'idIdioma': 'CA',
-                            'idSesion': sessionInfo['sessionId'],
-                            'instala': '_4TICK',
-                            'seccion': '4',
-                            'idRecinto': 'FS4',
-                            'idEvento': 'SFF17_303',
-                            'IDsRecinto': '0;FS4',
-                            'IDSEvento': '0;SFF17_303',
-                            'conexiones': '0',
-                            'idTipoE': '251',
-                            'Etiquetas': '0000000000111489',
-                            'NivelPrecios': '0',
-                            'timeStamp': now};
-                        
-    var promise = $.ajax({
-                type: 'POST',
-                url: url,
-                data: seat_request_data,
-                dataType: 'text/plain'
-            })
-            .then(function (data, textStatus, jqXHR) {
-
-                try {
-                    var regex = /"Disponible" *: *"(\d+)"/g;
-                    var match = regex.exec(data);
-
-                    var seats = 0;
-                    while (match != null) {
-                        seats += parseInt(match[1]);
-                        match = regex.exec(data);
-                    }
-                    sessionInfo['libres'] = seats/2;
-
-                } catch(e) {
-                    console.log('Something happened while retrieving seats!\n' + e)
-                    sessionInfo['libres'] = null;
-                }
-            },
-            function (data, textStatus, jqXHR) {
-                console.log("Error!: " + textStatus);
-            });
-            
-    return promise;
-}
-
-function processMovieData(data, day_coded, callback_capacity) {
+function processSessionData(data) {
     
     var parser = new DOMParser();
     var htmlDoc = parser.parseFromString(data, "text/html");
     
     var table = htmlDoc.getElementById("program-table");
     
-    var promises = [];
-    var movie_list = [];
+    var sessions = {};
     var rows = table.getElementsByTagName('tr');
     for (i = 0; i < rows.length; i++) {
         var sessionInfo = parseRow(rows[i]);
-        if (sessionInfo && sessionInfo['day_coded'] == day_coded) {
-            if (sessionInfo['sessionId']) {
-                promises.push(retrieveCapacity(sessionInfo));
-                promises.push(retrieveSeats(sessionInfo));
-            }
-            movie_list.push(sessionInfo);
+        
+        day_coded = sessionInfo['day_coded'];
+        if (!(day_coded in sessions)) {
+            sessions[day_coded] = []
         }
+        sessions[day_coded].push(sessionInfo);
     }
     
-    Promise.all(promises).then(function() {
-            date_info[day_coded] = movie_list;
-            $('#movie_table').bootstrapTable('hideLoading');
-            $('#movie_table').bootstrapTable('load', movie_list);
-            $('#dates').removeAttr('disabled');
-        })
-    
-    return movie_list;
+    return sessions;
 }
 
-date_info = {};
-
-function extractData(day) {
-
-    if (day in date_info) {
-        $('#movie_table').bootstrapTable('hideLoading');
-        $('#movie_table').bootstrapTable('load', date_info[day]);
-
-    } else {
-        $('#dates').attr('disabled', 'disabled');
-        $('#movie_table').bootstrapTable('showLoading');
-
-        var proxy = "https://cors-anywhere.herokuapp.com/";
-        var url = "https://sitgesfilmfestival.com/cat/programa";
+function retrieveSessions(afterRetrievalCallback) {
     
-        $.ajax({
-            type: 'GET',
-            url: url
-            
-        }).then(function (data, textStatus, jqXHR) {
+    var proxy = "http://goxcors.appspot.com/cors?method=GET&url=";
+    var url = "https://sitgesfilmfestival.com/cat/programa";
+
+    $.ajax({
+        type: 'GET',
+        url: proxy + url
+        
+    }).then(function (data, textStatus, jqXHR) {
             //alert("Ok!");
             //console.log(data);
+            sitges.sessions = processSessionData(data);
+            
+            afterRetrievalCallback();
+        },
+        
+        function (jqXHR, textStatus, errorThrown) {
+            var msg = "Error on getting program page: " + textStatus + ", " + errorThrown;
+            alert(msg);
+            console.log(msg)
+        }
+    );
+}    
 
-            var movie_list = processMovieData(data, day);
-                
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                alert("Wait, take a look: " + textStatus + ", " + errorThrown);
-            }
-        );
-    }
-}
+sitges = {};
+sitges.sessions = {};
+sitges.date_info = {};
 
 $(function () {
     $('#movie_table').bootstrapTable('showLoading');
 
+    retrieveSessions(function() {
+        var date = new Date();
+        var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 8));
+        $('#dates')[0].value = now;
+        loadDaySessions(now);        
+    });
+
     $('#dates')[0].onchange = function() {
-    	extractData(this.value);
+        loadDaySessions(this.value);
     };
 
-    var date = new Date();
-    var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 8));
-    $('#dates')[0].value = now;
-    extractData(now);
 });

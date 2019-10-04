@@ -1,15 +1,20 @@
 <html>
     <head>
-         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Festival de Sitges</title>
+        
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
         <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css">
 
         <style>
             .fixed-table-body {
-                height: initial;
+                height: initial !important;
             }   
              .fixed-table-loading {
-                top: 0px;
+                top: 0px !important;
             }
         </style>
 
@@ -24,17 +29,17 @@
             <div class="form-group">
                 <label for="dates">Select date:</label>
                 <select class="form-control" id="dates">
-                    <option value="20181004">4/10/2018</option>
-                    <option value="20181005">5/10/2018</option>
-                    <option value="20181006">6/10/2018</option>
-                    <option value="20181007">7/10/2018</option>
-                    <option value="20181008">8/10/2018</option>
-                    <option value="20181009">9/10/2018</option>
-                    <option value="20181010">10/10/2018</option>
-                    <option value="20181011">11/10/2018</option>
-                    <option value="20181012">12/10/2018</option>
-                    <option value="20181013">13/10/2018</option>
-                    <option value="20181014">14/10/2018</option>
+                    <option value="20191003">03/10/2019 Thursday</option>
+                    <option value="20191004">04/10/2019 Friday</option>
+                    <option value="20191005">05/10/2019 Saturday</option>
+                    <option value="20191006">06/10/2019 Sunday</option>
+                    <option value="20191007">07/10/2019 Monday</option>
+                    <option value="20191008">08/10/2019 Tuesday</option>
+                    <option value="20191009">09/10/2019 Wednesday</option>
+                    <option value="20191010">10/10/2019 Thursday</option>
+                    <option value="20191011">11/10/2019 Friday</option>
+                    <option value="20191012">12/10/2019 Saturday</option>
+                    <option value="20191013">13/10/2019 Sunday</option>
                 </select>
             </div>
 
@@ -55,28 +60,30 @@
                         data-sortable="true">
                             Place
                     </th>
+                    <th data-field="aforo" 
+                        data-sortable="true"
+                        data-align="center">
+                            Capacity
+                    </th>
                     <th data-field="title" 
-                        data-sortable="true">
+                        data-sortable="true"
+                        data-formatter="LinkFormatter">
                             Title
                     </th>
-                    <th data-field="info_url"
-                        data-formatter="InfoFormatter">
-                        Info
-                    </th>
                     <th data-field="libres" 
-                        data-sortable="true">
-                            Libres
+                        data-sortable="true"
+                        data-align="center">
+                            Free
                     </th>
                     <th data-field="agotado" 
-                        data-sortable="true">
-                            Libres
+                        data-sortable="true"
+                        data-align="center">
+                            Full
                     </th>
                     <th data-field="libres_real" 
-                        data-sortable="true">
-                            Libres (Real)
-                    </th>
-                    <th data-field="info_url">
-                            Info
+                        data-sortable="true"
+                        data-align="center">
+                            Free (Real)
                     </th>
                 </tr>
                 </thead>

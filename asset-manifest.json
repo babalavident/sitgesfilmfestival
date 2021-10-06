@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/sitgesfilmfestival/static/css/main.a617e044.chunk.css",
+    "main.js": "/sitgesfilmfestival/static/js/main.de346ebd.chunk.js",
+    "main.js.map": "/sitgesfilmfestival/static/js/main.de346ebd.chunk.js.map",
+    "runtime-main.js": "/sitgesfilmfestival/static/js/runtime-main.9bde1baf.js",
+    "runtime-main.js.map": "/sitgesfilmfestival/static/js/runtime-main.9bde1baf.js.map",
+    "static/js/2.3ad64c10.chunk.js": "/sitgesfilmfestival/static/js/2.3ad64c10.chunk.js",
+    "static/js/2.3ad64c10.chunk.js.map": "/sitgesfilmfestival/static/js/2.3ad64c10.chunk.js.map",
+    "static/js/3.9b1d1d72.chunk.js": "/sitgesfilmfestival/static/js/3.9b1d1d72.chunk.js",
+    "static/js/3.9b1d1d72.chunk.js.map": "/sitgesfilmfestival/static/js/3.9b1d1d72.chunk.js.map",
+    "index.html": "/sitgesfilmfestival/index.html",
+    "static/css/main.a617e044.chunk.css.map": "/sitgesfilmfestival/static/css/main.a617e044.chunk.css.map",
+    "static/js/2.3ad64c10.chunk.js.LICENSE.txt": "/sitgesfilmfestival/static/js/2.3ad64c10.chunk.js.LICENSE.txt",
+    "static/media/logo.6ce24c58.svg": "/sitgesfilmfestival/static/media/logo.6ce24c58.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.9bde1baf.js",
+    "static/js/2.3ad64c10.chunk.js",
+    "static/css/main.a617e044.chunk.css",
+    "static/js/main.de346ebd.chunk.js"
+  ]
+}

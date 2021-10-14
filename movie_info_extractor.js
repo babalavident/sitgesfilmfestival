@@ -119,7 +119,7 @@ function retrieveSeats(sessionInfo) {
     return promise;
 }
 
-async function retrieveSessionsData(sessions) {
+async function retrieveSessionsDataChained(sessions) {
     
     var movie_list = [];
     movie_list.push({
@@ -145,11 +145,54 @@ async function retrieveSessionsData(sessions) {
     movie_list.pop();
     $('#movie_table').bootstrapTable('load', movie_list);
     sitges.date_info[day_coded] = movie_list;
-    $('#dates').removeAttr('disabled');
-    
+    $('#dates').removeAttr('disabled');    
+
     return movie_list;
 }
 
+
+async function retrieveSessionsData(day_coded, sessions) {
+
+    var movie_list = [];
+    $('#movie_table').bootstrapTable('load', movie_list);
+
+    for (i = 0; i < sessions.length; i++) {
+        var sessionInfo = sessions[i];
+        if (sessionInfo) {
+            var clone = JSON.parse(JSON.stringify(sessionInfo));
+            movie_list.push(clone);
+        }
+    }
+
+    $('#movie_table').bootstrapTable('load', movie_list);
+    $('#movie_table').bootstrapTable('hideLoading');
+    
+    const delay = (ms = 500) => new Promise(r => setTimeout(r, ms));
+
+    var promises = [];
+    for (i = 0; i < movie_list.length; i++) {
+        
+        var sessionInfo = movie_list[i];
+        if (sessionInfo['sessionId']) {
+            await delay()
+            var promise = retrieveCapacity(sessionInfo)
+                .then(() => {$('#movie_table').bootstrapTable('load', movie_list)});
+            promises.push(promise);
+
+            var promise = retrieveSeats(sessionInfo)
+                .then(() => {$('#movie_table').bootstrapTable('load', movie_list)});
+            promises.push(retrieveSeats(sessionInfo));
+        }
+    }
+    
+    Promise.all(promises).then(function() {
+            sitges.date_info[day_coded] = movie_list;
+            //$('#movie_table').bootstrapTable('load', movie_list);
+            $('#dates').removeAttr('disabled');
+    });
+    
+    return movie_list;
+}
 
 function loadDaySessions(day) {
 
@@ -161,7 +204,7 @@ function loadDaySessions(day) {
         $('#dates').attr('disabled', 'disabled');
         $('#movie_table').bootstrapTable('showLoading');
         
-        retrieveSessionsData(sitges.sessions[day]);
+        retrieveSessionsData(day, sitges.sessions[day]);
         
     } else {
         var msg = "Date not covered has been found: " + day;
@@ -265,6 +308,7 @@ sitges.date_info = {};
 
 $(function () {
     $('#movie_table').bootstrapTable('showLoading');
+    $('#dates').attr('disabled', 'disabled');
 
     retrieveSessions(function() {
         var date = new Date();

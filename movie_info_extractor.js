@@ -1,11 +1,14 @@
 
+proxy = {
+    "url": "https://cors.bridged.cc/",
+    "api_key": ["3e974643", "81bc", "4629", "bad4", "75e57dc3535a"]
+}
+
 function LinkFormatter(value, row, index) {
       return "<a href='"+row.info_url+"' target='_blank'>"+value.replace(/(\r\n|\n|\r)/gm, "<br>")+"</a>";
 }
 
 function retrieveCapacity(sessionInfo) {
-    var proxy = "https://cors.bridged.cc/";
-    var url = "https://www.4tickets.es/repositorios/repo43r10.ck/public/cgi/Gateway.php";
 
     var date = new Date();
     var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
@@ -22,11 +25,22 @@ function retrieveCapacity(sessionInfo) {
     capacity_request_data.append('Idioma', '02');
     capacity_request_data.append('UserSession', '1633000862.8897');
 
-    var promise = fetch(proxy+url, {
+    var url = "https://www.4tickets.es/repositorios/repo43r10.ck/public/cgi/Gateway.php";
+    var options = {
         method: 'POST',
         body: capacity_request_data,
-        cache: 'no-cache'
-    })
+        cache: 'no-cache',
+        headers: {}
+    };
+
+    if (proxy) {
+        url = proxy.url + url;
+        if ("api_key" in proxy && proxy.api_key) {
+            options['headers']['x-cors-grida-api-key'] = proxy.api_key.join("-")
+        }
+    }
+
+    var promise = fetch(url, options)
     .then(response => {
         if (!response.ok) {
             throw Error(response.statusText);
@@ -58,8 +72,6 @@ function retrieveCapacity(sessionInfo) {
 }
 
 function retrieveSeats(sessionInfo) {
-    var proxy = "https://cors.bridged.cc/";
-    var url = "https://www.4tickets.es/repositorios/repo43r10.ck/public/cgi/Gateway.php";
 
     var date = new Date();
     var now = parseInt(date.toJSON().replace(/-|T|:/g, "").substring(0, 14)) + 20000;
@@ -85,11 +97,22 @@ function retrieveSeats(sessionInfo) {
     seat_request_data.append('Idioma', '02');
     seat_request_data.append('UserSession', '1632999065.2949');
     
-    var promise = fetch(proxy+url, {
+    var url = "https://www.4tickets.es/repositorios/repo43r10.ck/public/cgi/Gateway.php";
+    var options = {
         method: 'POST',
         body: seat_request_data,
-        cache: 'no-cache'
-    })
+        cache: 'no-cache',
+        headers: {}
+    };
+
+    if (proxy) {
+        url = proxy.url + url;
+        if ("api_key" in proxy && proxy.api_key) {
+            options['headers']['x-cors-grida-api-key'] = proxy.api_key.join("-")
+        }
+    }
+
+    var promise = fetch(url, options)
     .then(response => {
         if (!response.ok) {
             throw Error(response.statusText);
@@ -284,13 +307,21 @@ function processSessionData(data) {
 
 function retrieveSessions(afterRetrievalCallback) {
     
-    var proxy = "https://cors.bridged.cc/";
     var url = "https://sitgesfilmfestival.com/cat/programa";
-
-    fetch(proxy+url, {
+    var options = {
         type: 'GET',
-        cache: 'no-cache'
-    })
+        cache: 'no-cache',
+        headers: {}
+    };
+
+    if (proxy) {
+        url = proxy.url + url;
+        if ("api_key" in proxy && proxy.api_key) {
+            options['headers']['x-cors-grida-api-key'] = proxy.api_key.join("-")
+        }
+    }
+
+    fetch(url, options)
     .then(response => response.text())
     .then(data => {
             //alert("Ok!");

@@ -4,7 +4,7 @@ function LinkFormatter(value, row, index) {
 }
 
 function retrieveCapacity(sessionInfo) {
-    var proxy = "https://cors.bridged.cc/";
+    var proxy = "https://corsproxy.io/?";
     var url = "https://www.4tickets.es/repositorios/repo43r10.ck/public/cgi/Gateway.php";
 
     var date = new Date();
@@ -22,11 +22,14 @@ function retrieveCapacity(sessionInfo) {
     capacity_request_data.append('Idioma', '02');
     capacity_request_data.append('UserSession', '1633000862.8897');
 
-    var promise = fetch(proxy+url, {
-        method: 'POST',
-        body: capacity_request_data,
-        cache: 'no-cache'
-    })
+    var promise = fetch(
+        proxy + encodeURIComponent(url),
+        {
+            method: 'POST',
+            body: capacity_request_data,
+            cache: 'no-cache'
+        }
+    )
     .then(response => {
         if (!response.ok) {
             throw Error(response.statusText);
@@ -58,7 +61,7 @@ function retrieveCapacity(sessionInfo) {
 }
 
 function retrieveSeats(sessionInfo) {
-    var proxy = "https://cors.bridged.cc/";
+    var proxy = "https://corsproxy.io/?";
     var url = "https://www.4tickets.es/repositorios/repo43r10.ck/public/cgi/Gateway.php";
 
     var date = new Date();
@@ -85,11 +88,14 @@ function retrieveSeats(sessionInfo) {
     seat_request_data.append('Idioma', '02');
     seat_request_data.append('UserSession', '1632999065.2949');
     
-    var promise = fetch(proxy+url, {
-        method: 'POST',
-        body: seat_request_data,
-        cache: 'no-cache'
-    })
+    var promise = fetch(
+        proxy + encodeURIComponent(url),
+        {
+            method: 'POST',
+            body: seat_request_data,
+            cache: 'no-cache'
+        }
+    )
     .then(response => {
         if (!response.ok) {
             throw Error(response.statusText);
@@ -241,13 +247,16 @@ function processSessionData(data) {
 
 function retrieveSessions(afterRetrievalCallback) {
     
-    var proxy = "https://cors.bridged.cc/";
+    var proxy = "https://corsproxy.io/?";
     var url = "https://sitgesfilmfestival.com/cat/programa";
 
-    fetch(proxy+url, {
-        type: 'GET',
-        cache: 'no-cache'
-    })
+    var promise = fetch(
+        proxy + encodeURIComponent(url),
+        {
+            type: 'GET',
+            cache: 'no-cache'
+        }
+    )
     .then(response => response.text())
     .then(data => {
             //alert("Ok!");
